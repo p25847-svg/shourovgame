@@ -1,1 +1,65 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Love Proposal 😍</title>
+  <style>
+    body {
+      text-align: center;
+      font-family: Arial, sans-serif;
+      margin-top: 100px;
+      background-color: #ffe6e6;
+    }
+
+    h1 {
+      font-size: 40px;
+      color: #ff3366;
+    }
+
+    .btn {
+      padding: 15px 30px;
+      font-size: 18px;
+      margin: 20px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    #accept {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    #reject {
+      background-color: #ff3333;
+      color: white;
+      position: absolute;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>I Love You ❤️</h1>
+
+  <button id="accept" class="btn" onclick="acceptLove()">Accept 💖</button>
+  <button id="reject" class="btn">Reject 💔</button>
+
+  <script>
+    const rejectBtn = document.getElementById("reject");
+
+    rejectBtn.addEventListener("mouseover", () => {
+      const x = Math.random() * window.innerWidth;
+      const y = Math.random() * window.innerHeight;
+
+      rejectBtn.style.left = x + "px";
+      rejectBtn.style.top = y + "px";
+    });
+
+    function acceptLove() {
+      alert("Yay! 💕 I knew it 😍");
+    }
+  </script>
+
+</body>
+</html>
