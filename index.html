@@ -2,64 +2,260 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Love Proposal 😍</title>
-  <style>
-    body {
-      text-align: center;
-      font-family: Arial, sans-serif;
-      margin-top: 100px;
-      background-color: #ffe6e6;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Temple Run Game</title>
 
-    h1 {
-      font-size: 40px;
-      color: #ff3366;
-    }
+<style>
+body{
+    margin:0;
+    overflow:hidden;
+    background:#222;
+    font-family:Arial;
+}
 
-    .btn {
-      padding: 15px 30px;
-      font-size: 18px;
-      margin: 20px;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-    }
+canvas{
+    display:block;
+    background:linear-gradient(#87CEEB,#ffffff);
+}
 
-    #accept {
-      background-color: #4CAF50;
-      color: white;
-    }
-
-    #reject {
-      background-color: #ff3333;
-      color: white;
-      position: absolute;
-    }
-  </style>
+#score{
+    position:absolute;
+    top:20px;
+    left:20px;
+    color:white;
+    font-size:30px;
+    font-weight:bold;
+}
+</style>
 </head>
+
 <body>
 
-  <h1>I Love You ❤️</h1>
+<div id="score">Score: 0</div>
 
-  <button id="accept" class="btn" onclick="acceptLove()">Accept 💖</button>
-  <button id="reject" class="btn">Reject 💔</button>
+<canvas id="game"></canvas>
 
-  <script>
-    const rejectBtn = document.getElementById("reject");
+<script>
 
-    rejectBtn.addEventListener("mouseover", () => {
-      const x = Math.random() * window.innerWidth;
-      const y = Math.random() * window.innerHeight;
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
 
-      rejectBtn.style.left = x + "px";
-      rejectBtn.style.top = y + "px";
-    });
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
 
-    function acceptLove() {
-      alert("Yay! 💕 I knew it 😍");
+const lanes = [
+    canvas.width/2 - 150,
+    canvas.width/2,
+    canvas.width/2 + 150
+];
+
+let score = 0;
+
+const player = {
+    lane:1,
+    x:lanes[1],
+    y:canvas.height - 180,
+    width:70,
+    height:100,
+    vy:0,
+    jumping:false
+};
+
+const gravity = 1;
+
+let obstacles = [];
+
+function drawRoad(){
+
+    ctx.fillStyle = "#444";
+
+    ctx.fillRect(
+        canvas.width/2 - 250,
+        0,
+        500,
+        canvas.height
+    );
+
+    ctx.strokeStyle = "white";
+    ctx.lineWidth = 5;
+
+    ctx.beginPath();
+    ctx.moveTo(canvas.width/2 - 80,0);
+    ctx.lineTo(canvas.width/2 - 80,canvas.height);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(canvas.width/2 + 80,0);
+    ctx.lineTo(canvas.width/2 + 80,canvas.height);
+    ctx.stroke();
+}
+
+function drawPlayer(){
+
+    ctx.fillStyle = "gold";
+
+    ctx.fillRect(
+        player.x - player.width/2,
+        player.y,
+        player.width,
+        player.height
+    );
+}
+
+function updatePlayer(){
+
+    if(player.jumping){
+
+        player.vy += gravity;
+        player.y += player.vy;
+
+        if(player.y >= canvas.height - 180){
+
+            player.y = canvas.height - 180;
+            player.jumping = false;
+            player.vy = 0;
+        }
     }
-  </script>
+}
+
+function jump(){
+
+    if(!player.jumping){
+
+        player.jumping = true;
+        player.vy = -20;
+    }
+}
+
+function moveLeft(){
+
+    if(player.lane > 0){
+
+        player.lane--;
+        player.x = lanes[player.lane];
+    }
+}
+
+function moveRight(){
+
+    if(player.lane < 2){
+
+        player.lane++;
+        player.x = lanes[player.lane];
+    }
+}
+
+function createObstacle(){
+
+    let lane = Math.floor(Math.random()*3);
+
+    obstacles.push({
+
+        x:lanes[lane] - 35,
+        y:-100,
+        width:70,
+        height:70
+    });
+}
+
+function drawObstacles(){
+
+    ctx.fillStyle = "red";
+
+    obstacles.forEach(obstacle=>{
+
+        ctx.fillRect(
+            obstacle.x,
+            obstacle.y,
+            obstacle.width,
+            obstacle.height
+        );
+    });
+}
+
+function updateObstacles(){
+
+    for(let i=0;i<obstacles.length;i++){
+
+        obstacles[i].y += 10;
+
+        if(obstacles[i].y > canvas.height){
+
+            obstacles.splice(i,1);
+
+            score++;
+
+            document.getElementById("score").innerText =
+            "Score: " + score;
+        }
+    }
+}
+
+function collision(){
+
+    obstacles.forEach(obstacle=>{
+
+        if(
+
+            player.x - player.width/2 <
+            obstacle.x + obstacle.width &&
+
+            player.x + player.width/2 >
+            obstacle.x &&
+
+            player.y <
+            obstacle.y + obstacle.height &&
+
+            player.y + player.height >
+            obstacle.y
+
+        ){
+
+            alert("Game Over!");
+
+            location.reload();
+        }
+    });
+}
+
+function game(){
+
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    drawRoad();
+
+    updatePlayer();
+    drawPlayer();
+
+    updateObstacles();
+    drawObstacles();
+
+    collision();
+
+    requestAnimationFrame(game);
+}
+
+setInterval(createObstacle,1200);
+
+window.addEventListener("keydown",e=>{
+
+    if(e.key==="ArrowLeft"){
+        moveLeft();
+    }
+
+    if(e.key==="ArrowRight"){
+        moveRight();
+    }
+
+    if(e.key==="ArrowUp" || e.key===" "){
+        jump();
+    }
+});
+
+game();
+
+</script>
 
 </body>
 </html>
