@@ -4,256 +4,180 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Temple Run Game</title>
+<title>Modern Calculator</title>
 
 <style>
-body{
+
+*{
     margin:0;
-    overflow:hidden;
-    background:#222;
+    padding:0;
+    box-sizing:border-box;
     font-family:Arial;
 }
 
-canvas{
-    display:block;
-    background:linear-gradient(#87CEEB,#ffffff);
+body{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+    background:#111;
 }
 
-#score{
-    position:absolute;
-    top:20px;
-    left:20px;
-    color:white;
-    font-size:30px;
-    font-weight:bold;
+.calculator{
+
+    width:420px;
+    background:#1b1b1b;
+    border-radius:30px;
+    padding:20px;
+    box-shadow:0 0 40px rgba(0,0,0,0.5);
 }
+
+#display{
+
+    width:100%;
+    height:100px;
+    border:none;
+    outline:none;
+    background:#111;
+    color:white;
+    font-size:45px;
+    text-align:right;
+    padding:20px;
+    border-radius:20px;
+    margin-bottom:20px;
+}
+
+.buttons{
+
+    display:grid;
+    grid-template-columns:repeat(6,1fr);
+    gap:12px;
+}
+
+button{
+
+    height:65px;
+    border:none;
+    border-radius:18px;
+    font-size:24px;
+    cursor:pointer;
+    background:#2c2c2c;
+    color:white;
+    transition:0.2s;
+}
+
+button:hover{
+
+    transform:scale(1.05);
+}
+
+.operator{
+
+    background:#0d2b45;
+}
+
+.equal{
+
+    background:#5ecbff;
+    color:black;
+}
+
+.top{
+
+    background:#3a3a3a;
+}
+
 </style>
 </head>
 
 <body>
 
-<div id="score">Score: 0</div>
+<div class="calculator">
 
-<canvas id="game"></canvas>
+<input type="text" id="display" value="0" readonly>
+
+<div class="buttons">
+
+<button class="top" onclick="clearDisplay()">AC</button>
+<button class="top" onclick="append('%')">%</button>
+<button class="top" onclick="append('(')">(</button>
+<button class="top" onclick="append(')')">)</button>
+<button class="top" onclick="backspace()">⌫</button>
+<button class="operator" onclick="append('/')">÷</button>
+
+<button onclick="append('7')">7</button>
+<button onclick="append('8')">8</button>
+<button onclick="append('9')">9</button>
+<button onclick="append('Math.sin(')">sin</button>
+<button onclick="append('Math.cos(')">cos</button>
+<button class="operator" onclick="append('*')">×</button>
+
+<button onclick="append('4')">4</button>
+<button onclick="append('5')">5</button>
+<button onclick="append('6')">6</button>
+<button onclick="append('Math.tan(')">tan</button>
+<button onclick="append('Math.log10(')">log</button>
+<button class="operator" onclick="append('-')">−</button>
+
+<button onclick="append('1')">1</button>
+<button onclick="append('2')">2</button>
+<button onclick="append('3')">3</button>
+<button onclick="append('Math.sqrt(')">√</button>
+<button onclick="append('**')">xʸ</button>
+<button class="operator" onclick="append('+')">+</button>
+
+<button onclick="append('0')" style="grid-column:span 2;">0</button>
+<button onclick="append('.')">.</button>
+<button onclick="append('3.1416')">π</button>
+<button onclick="append('2.718')">e</button>
+<button class="equal" onclick="calculate()">=</button>
+
+</div>
+
+</div>
 
 <script>
 
-const canvas = document.getElementById("game");
-const ctx = canvas.getContext("2d");
+let display = document.getElementById("display");
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+function append(value){
 
-const lanes = [
-    canvas.width/2 - 150,
-    canvas.width/2,
-    canvas.width/2 + 150
-];
+    if(display.value === "0"){
 
-let score = 0;
+        display.value = value;
 
-const player = {
-    lane:1,
-    x:lanes[1],
-    y:canvas.height - 180,
-    width:70,
-    height:100,
-    vy:0,
-    jumping:false
-};
+    }else{
 
-const gravity = 1;
-
-let obstacles = [];
-
-function drawRoad(){
-
-    ctx.fillStyle = "#444";
-
-    ctx.fillRect(
-        canvas.width/2 - 250,
-        0,
-        500,
-        canvas.height
-    );
-
-    ctx.strokeStyle = "white";
-    ctx.lineWidth = 5;
-
-    ctx.beginPath();
-    ctx.moveTo(canvas.width/2 - 80,0);
-    ctx.lineTo(canvas.width/2 - 80,canvas.height);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(canvas.width/2 + 80,0);
-    ctx.lineTo(canvas.width/2 + 80,canvas.height);
-    ctx.stroke();
-}
-
-function drawPlayer(){
-
-    ctx.fillStyle = "gold";
-
-    ctx.fillRect(
-        player.x - player.width/2,
-        player.y,
-        player.width,
-        player.height
-    );
-}
-
-function updatePlayer(){
-
-    if(player.jumping){
-
-        player.vy += gravity;
-        player.y += player.vy;
-
-        if(player.y >= canvas.height - 180){
-
-            player.y = canvas.height - 180;
-            player.jumping = false;
-            player.vy = 0;
-        }
+        display.value += value;
     }
 }
 
-function jump(){
+function clearDisplay(){
 
-    if(!player.jumping){
+    display.value = "0";
+}
 
-        player.jumping = true;
-        player.vy = -20;
+function backspace(){
+
+    display.value = display.value.slice(0,-1);
+
+    if(display.value === ""){
+
+        display.value = "0";
     }
 }
 
-function moveLeft(){
+function calculate(){
 
-    if(player.lane > 0){
+    try{
 
-        player.lane--;
-        player.x = lanes[player.lane];
+        display.value = eval(display.value);
+
+    }catch{
+
+        display.value = "Error";
     }
 }
-
-function moveRight(){
-
-    if(player.lane < 2){
-
-        player.lane++;
-        player.x = lanes[player.lane];
-    }
-}
-
-function createObstacle(){
-
-    let lane = Math.floor(Math.random()*3);
-
-    obstacles.push({
-
-        x:lanes[lane] - 35,
-        y:-100,
-        width:70,
-        height:70
-    });
-}
-
-function drawObstacles(){
-
-    ctx.fillStyle = "red";
-
-    obstacles.forEach(obstacle=>{
-
-        ctx.fillRect(
-            obstacle.x,
-            obstacle.y,
-            obstacle.width,
-            obstacle.height
-        );
-    });
-}
-
-function updateObstacles(){
-
-    for(let i=0;i<obstacles.length;i++){
-
-        obstacles[i].y += 10;
-
-        if(obstacles[i].y > canvas.height){
-
-            obstacles.splice(i,1);
-
-            score++;
-
-            document.getElementById("score").innerText =
-            "Score: " + score;
-        }
-    }
-}
-
-function collision(){
-
-    obstacles.forEach(obstacle=>{
-
-        if(
-
-            player.x - player.width/2 <
-            obstacle.x + obstacle.width &&
-
-            player.x + player.width/2 >
-            obstacle.x &&
-
-            player.y <
-            obstacle.y + obstacle.height &&
-
-            player.y + player.height >
-            obstacle.y
-
-        ){
-
-            alert("Game Over!");
-
-            location.reload();
-        }
-    });
-}
-
-function game(){
-
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-
-    drawRoad();
-
-    updatePlayer();
-    drawPlayer();
-
-    updateObstacles();
-    drawObstacles();
-
-    collision();
-
-    requestAnimationFrame(game);
-}
-
-setInterval(createObstacle,1200);
-
-window.addEventListener("keydown",e=>{
-
-    if(e.key==="ArrowLeft"){
-        moveLeft();
-    }
-
-    if(e.key==="ArrowRight"){
-        moveRight();
-    }
-
-    if(e.key==="ArrowUp" || e.key===" "){
-        jump();
-    }
-});
-
-game();
 
 </script>
 
